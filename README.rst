@@ -40,18 +40,17 @@ Below is the packer.py equivalent of running `packer CLI commands`_
 
 .. code:: python
 
-
     >>> from packerpy import PackerExecutable
-
+    >>>
     >>> PackerExecutable().validate('/path/to/good_template.json')
     (0, '1521843453,,ui,say,Template validated successfully.\n', '')
-
+    >>>
     >>> PackerExecutable().validate('/path/to/bad_template.json')
     (1, "1521843610,,ui,error,Template validation failed. Errors are shown below.\\n\n1521843610,,ui,error,Errors validating build 'amazon-ebs'. 1 error(s) occurred:\\n\\n* Bad script 'setup_things.sh': stat setup_things.sh: no such file or directory\n", '')
-
+    >>>
     >>> PackerExecutable().validate('/path/to/bad_template.json', syntax_only=True)
     (0, '1521843659,,ui,say,Syntax-only check passed. Everything looks okay.\n', '')
-
+    >>>
     >>> PackerExecutable(config={'stdout': None }).version()
     1521843095,,version,0.10.2
     1521843095,,version-prelease,
@@ -60,7 +59,7 @@ Below is the packer.py equivalent of running `packer CLI commands`_
     1521843095,,ui,say,
     1521843095,,ui,say,Your version of Packer is out of date! The latest version\nis 1.2.1. You can update by downloading from www.packer.io
     (0, None, '')
-
+    >>>
     >>> PackerExecutable(config={'executable_path': '/path/to/packer_1.2.1' , 'stdout': None }).version()
     1521848321,,version,1.2.1
     1521848321,,version-prelease,
