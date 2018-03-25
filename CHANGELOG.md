@@ -1,6 +1,7 @@
 
 ## (UNRELEASED)
 
+* support passing template as file path or directly via template parameter [GH-3]
 
 
 ## 0.1.1 (March 23, 2018)

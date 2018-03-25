@@ -48,7 +48,7 @@ class PackerExecutable(object):
         if machine_readable:
             self.configuration['machine-readable'] = True
 
-    def build(self, template,  **kwargs):
+    def build(self, template, **kwargs):
         """
         https://www.packer.io/docs/commands/build.html
 
@@ -68,7 +68,7 @@ class PackerExecutable(object):
         """
         return self.execute_cmd("inspect", template, **kwargs)
 
-    def validate(self, template,  **kwargs):
+    def validate(self, template, **kwargs):
         """
         https://www.packer.io/docs/commands/validate.html
 
@@ -76,9 +76,9 @@ class PackerExecutable(object):
         :param kwargs:
         :return:
         """
-        return self.execute_cmd("validate", template,  **kwargs)
+        return self.execute_cmd("validate", template, **kwargs)
 
-    def version(self,  **kwargs):
+    def version(self, **kwargs):
         """
 
         :param kwargs:
@@ -102,10 +102,15 @@ class PackerExecutable(object):
             else:
                 cmd_args.append("-{}={}".format(key, value))
 
+        is_json = template and template.startswith('{')
         if template:
-            cmd_args.append(template)
+            if is_json:
+                cmd_args.append('-')
+            else:
+                cmd_args.append(template)
 
-        p = subprocess.Popen(cmd_args, stdout=self.configuration['stdout'], stderr=self.configuration['stderr'])
-        out, err = p.communicate()
+        p = subprocess.Popen(cmd_args, stdin=subprocess.PIPE if is_json else None,
+                             stdout=self.configuration['stdout'], stderr=self.configuration['stderr'])
+        out, err = p.communicate(template if is_json else None)
 
         return p.returncode, out, err
