@@ -9,6 +9,7 @@ install:
   - SET "PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - python --version
   - pip install -r requirements-travis.txt
+  - powershell tools\get-packer.ps1
 
 build: off
 

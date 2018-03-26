@@ -1,4 +1,6 @@
 language: python
+env:
+  - PACKER_EXECUTABLE="/home/travis/build/mayn/packer.py/packer"
 cache:
   directories:
     - .tox
@@ -10,6 +12,7 @@ python:
 #  - pypy
 before_install:
   - pip install --upgrade pip setuptools wheel
+  - ./tools/get-packer.sh
 install:
   - pip install -r requirements-travis.txt
 script:

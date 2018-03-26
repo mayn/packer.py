@@ -94,7 +94,7 @@ class PackerExecutable(object):
         if 'machine-readable' in self.configuration:
             cmd_args.append('-machine-readable')
 
-        for key, value in kwargs.items():
+        for key, value in list(kwargs.items()):
             if '_' in key:
                 key = key.replace("_", "-")
             if value is True:
@@ -111,6 +111,6 @@ class PackerExecutable(object):
 
         p = subprocess.Popen(cmd_args, stdin=subprocess.PIPE if is_json else None,
                              stdout=self.configuration['stdout'], stderr=self.configuration['stderr'])
-        out, err = p.communicate(template if is_json else None)
+        out, err = p.communicate(template.encode('utf-8') if is_json else None)
 
         return p.returncode, out, err
