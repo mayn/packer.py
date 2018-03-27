@@ -18,7 +18,7 @@ from setuptools import find_packages
 
 setup(
     name='packer.py',
-    version='0.1.1',
+    version='0.2.0',
     author='Matthew Aynalem',
     author_email='maynalem@gmail.com',
     packages=['packerpy'],
