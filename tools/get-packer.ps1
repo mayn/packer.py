@@ -14,3 +14,4 @@ $zip = $shell.NameSpace($output)
 foreach($item in $zip.items()) {
 	$shell.Namespace("$extractPath").copyhere($item)
 }
+Write-Host "Packer located at $extractPath"

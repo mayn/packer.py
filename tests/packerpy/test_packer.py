@@ -16,8 +16,8 @@ limitations under the License.
 
 import os
 import pytest
-
 from packerpy import PackerExecutable
+from collections import OrderedDict
 
 
 class TestPackerExecutable(object):
@@ -26,8 +26,9 @@ class TestPackerExecutable(object):
     """
 
     def test_command_build(self):
-        result = PackerExecutableWrapper(machine_readable=False).build(self.get_test_template("cmd_validate_good.json"),
-                                                                color=False)
+        result = PackerExecutableWrapper(machine_readable=False) \
+            .build(self.get_test_template("cmd_validate_good.json"),
+                   color=False)
 
         assert result[0] == 1, result
 
@@ -53,7 +54,8 @@ class TestPackerExecutable(object):
         assert 'Packer v' in str(result[1]), result
 
     def test_template_json(self):
-        result = PackerExecutableWrapper().validate("""{
+        template = """
+        {
           "builders": [
             {
               "type": "amazon-ebs",
@@ -73,8 +75,8 @@ class TestPackerExecutable(object):
               "inline": ["echo foo"]
             }
           ]
-        }
-        """, syntax_only=True)
+        }"""
+        result = PackerExecutableWrapper().validate(template, syntax_only=True)
 
         assert result[0] == 0, result
 
@@ -89,8 +91,47 @@ class TestPackerExecutable(object):
         assert result[0] == 0, result
         assert result[1] is None, result
 
+    def test_multiple_var_arguments(self):
+        packer = PackerExecutableWrapper(machine_readable=False, config={'stdout': None})
+        template = """
+            {
+              "builders": [
+                {
+                  "type": "null",
+                  "ssh_host":     "127.0.0.1",
+                  "ssh_username": "foo",
+                  "ssh_password": "bar"
+                }
+              ]
+            }
+        """
+        result = packer.validate(template, var=OrderedDict([('aws_access_key', 'bar'), ('aws_secret_key', 'baz')]))
+
+        assert result[0] == 0, result
+        assert result[1] is None, result
+
+    def test_explode_args_dict(self):
+        packer = PackerExecutableWrapper()
+
+        result = packer._explode_args(var=OrderedDict([('aws_access_key', 'YOUR KEY'),
+                                                       ('aws_secret_key', 'foo'),
+                                                       ('region', 'us-east-1')]))
+
+        assert len(result) == 3, result
+        assert ' '.join(result) == "-var='aws_access_key=YOUR KEY' -var='aws_secret_key=foo' -var='region=us-east-1'"
+
+    @pytest.mark.parametrize("test_kwargs,expected", [
+        ({'force': True}, "-force"),
+        ({'color': False}, "-color=False"),
+    ])
+    def test_explode_args_boolean(self, test_kwargs, expected):
+        packer = PackerExecutableWrapper()
+
+        result = packer._explode_args(**test_kwargs)
+        assert ' '.join(result) == expected
+
     def get_test_template(self, file_name):
-        return os.path.join(os.path.dirname(os.path.abspath(__file__)), "../templates/{}".format(file_name))
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "templates", file_name)
 
 
 class PackerExecutableWrapper(PackerExecutable):
@@ -98,10 +139,10 @@ class PackerExecutableWrapper(PackerExecutable):
     wrapper for testing
     """
 
-    def __init__(self, machine_readable=True, config={}):
+    def __init__(self, machine_readable=True, config=None):
+        if config is None:
+            config = {}
         if os.getenv('PACKER_EXECUTABLE'):
             config['executable_path'] = os.environ['PACKER_EXECUTABLE']
 
         super(PackerExecutableWrapper, self).__init__(machine_readable, config)
-
-

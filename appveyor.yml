@@ -1,4 +1,5 @@
 environment:
+  PACKER_EXECUTABLE: C:\projects\packer-py\packer.exe
   matrix:
     - PYTHON: "C:\\Python27"
     - PYTHON: "C:\\Python34"

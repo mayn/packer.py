@@ -15,3 +15,7 @@ limitations under the License.
 """
 
 from .packer import PackerExecutable
+import logging
+
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())

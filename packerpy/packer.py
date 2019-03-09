@@ -13,11 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import logging
+import platform
 import subprocess
-
-"""
-packer commands
-"""
 
 
 class PackerExecutable(object):
@@ -26,6 +24,7 @@ class PackerExecutable(object):
     see https://www.packer.io/docs/commands/build.html
 
     """
+    PATH = 'executable_path'
 
     def __init__(self, machine_readable=True, config=None):
         """
@@ -33,12 +32,12 @@ class PackerExecutable(object):
         :param machine_readable:
         :param config:
         """
-
+        self.log= logging.getLogger(self.__class__.__name__)
         # default configuration
         self.configuration = {
             'stdout': subprocess.PIPE,
             'stderr': subprocess.PIPE,
-            'executable_path': '/usr/local/packer'
+            PackerExecutable.PATH: 'packer.exe' if 'Windows' == platform.system() else '/usr/local/packer'
         }
 
         # add overrides
@@ -86,23 +85,32 @@ class PackerExecutable(object):
         """
         return self.execute_cmd("version", **kwargs)
 
+    def _explode_args(self, **kwargs):
+        exploded = list()
+        for (key, value) in kwargs.items():
+            if '_' in key:
+                key = key.replace("_", "-")
+            if value is True:
+                exploded.append("-{}".format(key))
+            elif isinstance(value, dict):
+                for (k, v) in value.items():
+                    exploded.append("-{}='{}={}'".format(key, k, v))
+            else:
+                exploded.append("-{}={}".format(key, value))
+
+        return exploded
+
     def execute_cmd(self, packer_cmd, template=None, **kwargs):
         cmd_args = list()
-        cmd_args.append(self.configuration['executable_path'])
+        cmd_args.append(self.configuration[PackerExecutable.PATH])
         cmd_args.append(packer_cmd)
 
         if 'machine-readable' in self.configuration:
             cmd_args.append('-machine-readable')
 
-        for key, value in list(kwargs.items()):
-            if '_' in key:
-                key = key.replace("_", "-")
-            if value is True:
-                cmd_args.append("-{}".format(key))
-            else:
-                cmd_args.append("-{}={}".format(key, value))
+        cmd_args.extend(self._explode_args(**kwargs))
 
-        is_json = template and template.startswith('{')
+        is_json = template and template.strip("\n\t ").startswith('{')
         if template:
             if is_json:
                 cmd_args.append('-')
