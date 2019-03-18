@@ -18,13 +18,13 @@ from setuptools import find_packages
 
 setup(
     name='packer.py',
-    version='0.2.0',
+    version='0.3.0',
     author='Matthew Aynalem',
     author_email='maynalem@gmail.com',
     packages=['packerpy'],
     url='https://github.com/mayn/packer.py',
     license='Apache License 2.0',
-    description='packer.py - python library for interacting with hashicorp packer CLI',
+    description='packer.py - python library to run hashicorp packer CLI commands',
     keywords="hashicorp packer",
     long_description=open('README.rst').read(),
     install_requires=[
