@@ -26,13 +26,13 @@ class PackerExecutable(object):
     """
     PATH = 'executable_path'
 
-    def __init__(self, machine_readable=True, config=None):
+    def __init__(self, executable_path=None, machine_readable=True, config=None):
         """
 
         :param machine_readable:
         :param config:
         """
-        self.log= logging.getLogger(self.__class__.__name__)
+        self.log = logging.getLogger(self.__class__.__name__)
         # default configuration
         self.configuration = {
             'stdout': subprocess.PIPE,
@@ -41,6 +41,9 @@ class PackerExecutable(object):
         }
 
         # add overrides
+        if executable_path:
+            self.configuration[PackerExecutable.PATH] = executable_path
+
         if config:
             self.configuration.update(config)
 
@@ -85,7 +88,8 @@ class PackerExecutable(object):
         """
         return self.execute_cmd("version", **kwargs)
 
-    def _explode_args(self, **kwargs):
+    @staticmethod
+    def _explode_args(**kwargs):
         exploded = list()
         for (key, value) in kwargs.items():
             if '_' in key:
@@ -94,7 +98,8 @@ class PackerExecutable(object):
                 exploded.append("-{}".format(key))
             elif isinstance(value, dict):
                 for (k, v) in value.items():
-                    exploded.append("-{}='{}={}'".format(key, k, v))
+                    exploded.append("-{}".format(key))
+                    exploded.append("{}={}".format(k, v))
             else:
                 exploded.append("-{}={}".format(key, value))
 

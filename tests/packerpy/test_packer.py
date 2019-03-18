@@ -85,6 +85,12 @@ class TestPackerExecutable(object):
 
         assert result[0] == 0, result
 
+    def test_specify_executable_path(self):
+        p = PackerExecutable(executable_path="/usr/local/bin/packer")
+        result = p.configuration
+
+        assert result[PackerExecutable.PATH] == "/usr/local/bin/packer", result
+
     def test_config_override(self):
         result = PackerExecutableWrapper(machine_readable=False, config={'stdout': None}).version()
 
@@ -117,8 +123,8 @@ class TestPackerExecutable(object):
                                                        ('aws_secret_key', 'foo'),
                                                        ('region', 'us-east-1')]))
 
-        assert len(result) == 3, result
-        assert ' '.join(result) == "-var='aws_access_key=YOUR KEY' -var='aws_secret_key=foo' -var='region=us-east-1'"
+        assert len(result) == 6, result
+        assert ' '.join(result) == "-var aws_access_key=YOUR KEY -var aws_secret_key=foo -var region=us-east-1"
 
     @pytest.mark.parametrize("test_kwargs,expected", [
         ({'force': True}, "-force"),
@@ -131,6 +137,7 @@ class TestPackerExecutable(object):
         assert ' '.join(result) == expected
 
     def get_test_template(self, file_name):
+        print(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "templates", file_name))
         return os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "templates", file_name)
 
 
@@ -142,7 +149,7 @@ class PackerExecutableWrapper(PackerExecutable):
     def __init__(self, machine_readable=True, config=None):
         if config is None:
             config = {}
-        if os.getenv('PACKER_EXECUTABLE'):
-            config['executable_path'] = os.environ['PACKER_EXECUTABLE']
 
-        super(PackerExecutableWrapper, self).__init__(machine_readable, config)
+        executable_path=os.getenv('PACKER_EXECUTABLE')
+
+        super(PackerExecutableWrapper, self).__init__(executable_path, machine_readable, config)

@@ -1,0 +1,13 @@
+{
+    "variables": {
+        "my_var1": "{{env `my_var1`}}",
+        "my_var2": "{{env `my_var2`}}"
+    },
+    "builders": [
+        {
+            "type": "file",
+            "content": "{{user `my_var2`}} Lorem ipsum dolor sit amet {{user `my_var1`}} ",
+            "target": "/tmp/packer.test"
+        }
+    ]
+}
