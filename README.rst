@@ -325,7 +325,10 @@ Version
     >>> print(err)
     b''
 
+An example for creating AWS AMIs
+================================
 
+A working example for creating AWS AMIs: `AWS AMI builder`_
 
 Licensing
 =========
@@ -345,3 +348,4 @@ See `LICENSE`_ for the full license text.
 .. _`Apache license 2.0`: https://opensource.org/licenses/Apache-2.0
 .. _`BSD 2-Clause license`: http://opensource.org/licenses/BSD-2-Clause
 .. _`semantic versioning`: http://semver.org/
+.. _`AWS AMI builder`: https://github.com/thefossgeek/packer-aws-ami-builder
